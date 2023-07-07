@@ -72,7 +72,7 @@ function ($scope, $route, $rootScope, $timeout, $document, $window, $location, $
 	$scope.$on('event:auth-loginRequired', cleanup);
 
 	// Timeout timer value
-	var TimeOutTimerValue = 15*60*1000;
+	var TimeOutTimerValue = 60*60*1000;
 
 	// Start a timeout
 	var TimeOut_Thread = $timeout(function(){ LogoutByTimer() } , TimeOutTimerValue);
