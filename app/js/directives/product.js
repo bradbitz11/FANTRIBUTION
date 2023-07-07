@@ -121,18 +121,6 @@ four51.app.directive('staticspecstable', function() {
     return obj;
 });
 
-four51.app.directive('productnav', function() {
-	var obj = {
-		scope: {
-			product: '=',
-			variant: '=',
-			editvariant: '='
-		},
-		restrict: 'E',
-		templateUrl: 'partials/controls/productNav.html'
-	};
-	return obj;
-});
 
 four51.app.directive("variantlist", function() {
 	var obj = {
