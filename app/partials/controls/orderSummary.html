@@ -40,7 +40,7 @@
                 </div>
             </div>
             <p ng-show="currentOrder.Coupon">
-                <span class="text-info">{{currentOrder.Coupon.Label}}:</span>{{currentOrder.Coupon.OrderDiscount * -1 | culturecurrency}}<br/>
+                <span class="text-success pull-right"><strong>{{currentOrder.Coupon.Label}}</strong></span><br/>
             </p>
             <div ng-show="currentOrder.Coupon">
                 <button type="button"  class="btn btn-danger pull-right" ng-click="removeCoupon()">Remove {{'Coupon' | r | xlat}}</button>
@@ -52,7 +52,6 @@
             <strong>{{'Total' | r | xlat}}</strong>
             <span class="text-success pull-right"><strong>{{currentOrder.Total | culturecurrency}}</strong></span>
         </h4>
-        <p class="text-info text-left" ng-if="user.Company.TaxMethod != 'NoTax' && !user.Permissions.contains('HidePricing')">{{('Shipping' | r) + ', handling and tax may be added to this subtotal.' | xlat}}</p>
     </div>
     <div class="panel-footer">
         <div class="view-form-icon" ng-show="user.Permissions.contains('SendOrderNotificationToOthers') && !(cart_shipping.$invalid || cart_order.$invalid || cart_billing.$invalid)" >
