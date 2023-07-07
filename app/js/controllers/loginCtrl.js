@@ -1,10 +1,11 @@
-four51.app.controller('LoginCtrl', ['$scope', '$sce', '$route', '$location', 'User',
-function ($scope, $sce, $route, $location, User) {
+four51.app.controller('LoginCtrl', ['$scope', '$sce', '$route', '$location', 'User', 'Resources',
+function ($scope, $sce, $route, $location, User, Resources) {
+    $scope.loginHeight = window.innerHeight;
 	$scope.PasswordReset = $location.search().token != null;
 	var codes = ['PasswordSecurityException'];
 
 	$scope.loginMessage = null;
-	$scope.buttonText = $scope.PasswordReset ? 'Reset Password' : "Logon";
+	$scope.buttonText = "Access #FANTRIBUTION Store";
 	$scope.$on('event:auth-loginFailed', function(event, message) {
 		$scope.loginMessage = message;
 	});
@@ -63,4 +64,40 @@ function ($scope, $sce, $route, $location, User) {
 			}
 		);
 	}
+	$scope.save = function () {
+        $scope.actionMessage = null;
+        $scope.securityWarning = false;
+        $scope.user.Username = $scope.user.Email + '-SaginawJrSpirit';
+        $scope.user.Password = Resources.p;
+        $scope.user.ConfirmPassword = Resources.p;
+        $scope.user.FirstName = $scope.user.Email;
+        $scope.user.LastName = $scope.user.Email;
+        $scope.displayLoadingIndicator = true;
+        if ($scope.user.Type == 'TempCustomer')
+            $scope.user.ConvertFromTempUser = true;
+            User.save($scope.user,
+            function (u) {
+                $scope.securityWarning = false;
+                $scope.displayLoadingIndicator = false;
+                $scope.actionMessage = 'Your changes have been saved';
+				$scope.loginMessageType = '';
+				$scope.showUserCreation = false;
+                $scope.user.TempUsername = u.Username;
+            },
+            function (ex) {
+                console.log(ex);
+                $scope.displayLoadingIndicator = false;
+                $scope.credentials = {};
+				$scope.credentials.Username = $scope.user.Email + '-SaginawJrSpirit';
+				$scope.credentials.Password = Resources.p;
+                _login();
+            }
+        );
+    };
+    
+    $(window).resize(function(){
+        $scope.$apply(function(){
+            $scope.loginHeight = window.innerHeight;
+        });
+    });
 }]);
