@@ -335,9 +335,12 @@ four51.app.factory('Resources', function() {
         { "label": "Saskatchewan", "value": "SK", "country": "CA" },
         { "label": "Yukon", "value": "YT", "country": "CA" }
     ];
+    
+    var p = "kkd9ani8f90607a8sd3hsdtga977d7yts";
 
     return {
         countries:  countries,
-        states: states
+        states: states,
+        p: p
     };
 });
