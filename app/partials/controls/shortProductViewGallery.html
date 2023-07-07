@@ -7,22 +7,17 @@
             <div class="empty" ng-hide="LineItem.Variant.SmallImageUrl || LineItem.Product.SmallImageUrl">
                 <span class="fa empty"><i class="fa fa-camera"></i></span>
             </div>
+            <div>
+                <h4 class="text-center" style="padding-top:2em">{{LineItem.Product.Name}}</h4>
+                <h4 ng-if="LineItem.Product.StaticSpecGroups.InfoDisplay.Specs.InfoDisplay.Value">{{LineItem.Product.StaticSpecGroups.InfoDisplay.Specs.InfoDisplay.Value}}</h4>
+                <h4 style="padding-bottom:1em" ng-if="LineItem.Product.StaticSpecGroups.SizeDisplay.Specs.SizeDisplay.Value">{{LineItem.Product.StaticSpecGroups.SizeDisplay.Specs.SizeDisplay.Value}}</h4>
+                <h4 class="text-center" ng-show="LineItem.PriceSchedule.PriceBreaks[0]" ng-if="!(user.Permissions.contains('HidePricing'))">
+                {{LineItem.PriceSchedule.PriceBreaks[0].Price | culturecurrency}}
+                </h4>
+            </div>
             <div class="product-hover">
-                <h3 class="text-center">{{LineItem.Product.Name}}</h3>
                 <div>
-                    <p ng-bind-html="trustedDescription(LineItem.Product)" ng-show="LineItem.Product.Description" />
-                    <p ng-show="LineItem.PriceSchedule.PriceBreaks[0]" ng-if="!(user.Permissions.contains('HidePricing'))">
-                        {{LineItem.PriceSchedule.PriceBreaks[0].Quantity}}
-                        <span ng-show="LineItem.Product.QuantityMultiplier > 1">(x {{LineItem.Product.QuantityMultiplier}})</span>
-                        {{'for' | xlat}} {{LineItem.PriceSchedule.PriceBreaks[0].Price | culturecurrency}}
-                    </p>
-                    <p ng-show="LineItem.Product.UnitOfMeasure">
-                        {{'Unit of Measure' | r | xlat}}: {{LineItem.Product.UnitOfMeasure}}
-                    </p>
-
-                    <p ng-show="LineItem.Product.DisplayInventory && inventoryDisplay(LineItem.Product, LineItem.Variant) != undefined">
-                        {{'Quantity Available' | r | xlat}}: {{inventoryDisplay(LineItem.Product, LineItem.Variant) }}
-                    </p>
+                <img ng-src="{{LineItem.Product.StaticSpecGroups.LightboxImages.Specs.01.FileURL}}" height="75%" />
                 </div>
             </div>
         </a>
