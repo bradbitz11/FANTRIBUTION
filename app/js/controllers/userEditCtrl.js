@@ -1,169 +1,103 @@
-four51.app.controller('UserEditCtrl', ['$scope', '$location', '$sce', '$injector', '$timeout', 'User', 'Order',
-    function ($scope, $location, $sce, $injector, $timeout, User, Order) {
-        var _AnonRouter;
-        if ($scope.user) $scope.existingUser = $scope.user.Type != 'TempCustomer';
-        try {
-            _AnonRouter = $injector.get('AnonRouter');
-        }
-        catch(ex){}
+four51.app.controller('LoginCtrl', ['$scope', '$sce', '$route', '$location', 'User', 'Resources',
+function ($scope, $sce, $route, $location, User, Resources) {
+    $scope.loginHeight = window.innerHeight;
+	$scope.PasswordReset = $location.search().token != null;
+	var codes = ['PasswordSecurityException'];
 
-        User.get(function(user) {
-            $scope.user = user;
-            $scope.loginasuser = {};
-            $scope.actionMessage = null;
-            $scope.securityWarning = false;
+	$scope.loginMessage = null;
+	$scope.buttonText = "Access #FANTRIBUTION Store";
+	$scope.$on('event:auth-loginFailed', function(event, message) {
+		$scope.loginMessage = message;
+	});
 
-            if ($scope.user.Type != 'TempCustomer')
-                $scope.user.TempUsername = $scope.user.Username;
-            $scope.getToken = function () {
-                $scope.loginasuser.SendVerificationCodeByEmail = true;
-                $scope.emailResetLoadingIndicator = true;
-                $scope.buttonClicked = true;
-                User.login($scope.loginasuser, function () {
-                        $scope.resetPasswordError = null;
-                        $scope.enterResetToken = true;
-                        $scope.emailResetLoadingIndicator = false;
-                        $scope.buttonClicked = false;
-                    },
-                    function (err) {
-                        $scope.resetPasswordError = $sce.trustAsHtml(err.Message);
-                        $scope.emailResetLoadingIndicator = false;
-                        $scope.buttonClicked = false;
-                    });
+	// build a post method for password reset
+	$scope.login = function() {
+		$scope.loginMessage = null;
+		// need to reset any error codes that might be set so we can handle new one's
+		angular.forEach(codes, function(c) {
+			$scope[c] = null;
+		});
+		$scope.credentials.PasswordResetToken = $location.search().token;
+		$scope.PasswordReset ? _reset() : _login();
+	};
 
-            }
-            $scope.resetWithToken = function () {
-                $scope.buttonClicked = true;
-                $scope.emailResetLoadingIndicator = true;
-                if($scope.currentOrder){
-                    $scope.loginasuser.CurrentOrderID = $scope.currentOrder.ID;
-                }
-                User.reset($scope.loginasuser, function (user) {
-                        delete $scope.loginasuser;
-                        if(user.CurrentOrderID){
-                            Order.get(user.CurrentOrderID,function(order){
-                                $scope.currentOrder = order;
-                                $scope.currentOrder.FromUserID = user.ID;
-                                Order.save($scope.currentOrder,function(ordr){
-                                    $scope.buttonClicked = false;
-                                    $location.path('checkout');
-                                });
-                            });
-                        }
-                        else{
-                            $scope.buttonClicked = false;
-                            $location.path('catalog');
-                        }
-                    },
-                    function (err) {
-                        $scope.buttonClicked = false;
-                        $scope.emailResetLoadingIndicator = false;
-                        $scope.resetPasswordError = $sce.trustAsHtml(err.Message);
-                    });
-            }
-            $scope.save = function () {
-                var passwordChange = false;
-                $scope.buttonClicked = true;
-                $scope.actionMessage = null;
+	var _reset = function() {
+		User.reset($scope.credentials,
+			function(user) {
+				delete $scope.PasswordReset;
+				delete $scope.credentials;
+                $scope.buttonText = "Logon";
+				$location.path('catalog');
+			},
+			function(ex) {
+				$scope.loginMessage = $sce.trustAsHtml(ex.Message);
+			}
+		);
+	}
+
+	var _login = function() {
+		User.login($scope.credentials,
+			function(data) {
+				if ($scope.credentials.Email) {
+					$scope.loginMessage = data.LogonInfoSent;
+					$scope.EmailNotFoundException = false;
+					$scope.showEmailHelp = false;
+					$scope.credentials.Email = null;
+					$scope.credentials.Username = null;
+					$scope.credentials.Password = null;
+				}
+				delete $scope.credentials;
+			},
+			function(ex) {
+				$scope.credentials = {};
+				$scope[ex.Code.text] = true;
+				$scope.loginMessage = ex.Message || "User name and password not found";
+				if (ex.Code.is('PasswordSecurity'))
+					$scope.loginMessage = $sce.trustAsHtml(ex.Message);
+				if (ex.Code.is('EmailNotFoundException') && $scope.credentials.Email)
+					$scope.loginMessage = $sce.trustAsHtml(ex.Detail);
+				$scope.credentials.Username = null;
+				$scope.credentials.Password = null;
+				$scope.credentials.CurrentPassword = null;
+				$scope.credentials.NewPassword = null;
+				$scope.credentials.ConfirmPassword = null;
+			}
+		);
+	}
+	$scope.save = function () {
+        $scope.actionMessage = null;
+        $scope.securityWarning = false;
+        $scope.user.Username = $scope.user.Email + '-SaginawJrSpirit';
+        $scope.user.Password = Resources.p;
+        $scope.user.ConfirmPassword = Resources.p;
+        $scope.user.FirstName = $scope.user.Email;
+        $scope.user.LastName = $scope.user.Email;
+        $scope.displayLoadingIndicator = true;
+        if ($scope.user.Type == 'TempCustomer')
+            $scope.user.ConvertFromTempUser = true;
+            User.save($scope.user,
+            function (u) {
                 $scope.securityWarning = false;
-                $scope.user.Username = $scope.user.TempUsername;
-                $scope.displayLoadingIndicator = true;
-                if ($scope.user.Type == 'TempCustomer'){
-                    $scope.user.ConvertFromTempUser = true;
-                }
-                if($scope.currentOrder){
-                    $scope.pendingOrder = angular.copy($scope.currentOrder.ID);
-                }
-
-                if(user.Password && user.Type === "Customer"){
-                    passwordChange = true;
-                }
-
-                User.save($scope.user,
-                    function (u) {
-                        $scope.user = u;
-                        if(passwordChange){
-                            User.logout($scope.user, function(u){
-                                if ($scope.isAnon) {
-                                    $timeout(function () {
-                                        $location.path("/catalog");
-                                    }, 500);
-                                }
-                            }, function(ex){
-                                console.log(ex.Message);
-                            });
-                        }
-                        else{
-                            if($scope.pendingOrder){
-                                Order.get($scope.pendingOrder,function(order){
-                                    $scope.currentOrder = order;
-                                    $scope.currentOrder.FromUserID = $scope.user.ID;
-                                    Order.save($scope.currentOrder,function(ordr){
-                                        $scope.securityWarning = false;
-                                        $scope.displayLoadingIndicator = false;
-                                        $scope.buttonClicked = false;
-                                        $scope.actionMessage = 'Your changes have been saved';
-                                        $scope.user.TempUsername = u.Username;
-                                        if (_AnonRouter && !$scope.existingUser) _AnonRouter.route();
-                                    });
-                                });
-                            }
-                            else{
-                                $scope.securityWarning = false;
-                                $scope.displayLoadingIndicator = false;
-                                $scope.buttonClicked = false;
-                                $scope.actionMessage = 'Your changes have been saved';
-                                $scope.user.TempUsername = u.Username;
-                                if (_AnonRouter && !$scope.existingUser) _AnonRouter.route();
-                            }
-                        }
-                    },
-                    function (ex) {
-                        $scope.displayLoadingIndicator = false;
-                        $scope.buttonClicked = false;
-                        passwordChange = false;
-                        if (ex.Code.is('PasswordSecurity'))
-                            $scope.securityWarning = true;
-                        else {
-                            user.Password = null;
-                            user.ConfirmPassword = null;
-                            if(ex.Message.indexOf("PasswordAlreadyUsed") != -1){
-                                ex.Message = "Username already exists. Please choose another.";
-                                $scope.actionMessage = $sce.trustAsHtml(ex.Message);
-                            }
-                            else{
-                                $scope.actionMessage = $sce.trustAsHtml(ex.Message);
-                            }
-                        }
-                    }
-                );
-            };
-            $scope.loginExisting = function () {
-                $scope.buttonClicked = true;
-                if($scope.currentOrder){
-                    $scope.pendingOrder = angular.copy($scope.currentOrder.ID);
-                }
-                User.login({Username: $scope.loginasuser.Username, Password: $scope.loginasuser.Password, ID: $scope.user.ID, Type: $scope.user.Type}, function (u) {
-                    $scope.user = u;
-                    if($scope.pendingOrder){
-                        Order.get($scope.pendingOrder,function(order){
-                            $scope.currentOrder = order;
-                            $scope.currentOrder.FromUserID = $scope.user.ID;
-                            Order.save($scope.currentOrder,function(ordr){
-                                $scope.buttonClicked = false;
-                                if (_AnonRouter) _AnonRouter.route();
-                            });
-                        });
-                    }
-                    else{
-                        $scope.buttonClicked = false;
-                        if (_AnonRouter) _AnonRouter.route();
-                    }
-
-                }, function (err) {
-                    $scope.buttonClicked = false;
-                    $scope.loginAsExistingError = err.Message;
-                });
-            };
+                $scope.displayLoadingIndicator = false;
+                $scope.actionMessage = 'Your changes have been saved';
+				$scope.loginMessageType = '';
+				$scope.showUserCreation = false;
+                $scope.user.TempUsername = u.Username;
+            },
+            function (ex) {
+                console.log(ex);
+                $scope.displayLoadingIndicator = false;
+                $scope.credentials = {};
+				$scope.credentials.Username = $scope.user.Email + '-SaginawJrSpirit';
+				$scope.credentials.Password = Resources.p;
+                _login();
+            }
+        );
+    };
+    
+    $(window).resize(function(){
+        $scope.$apply(function(){
+            $scope.loginHeight = window.innerHeight;
         });
-    }]);
+    });
+}]);
