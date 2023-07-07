@@ -14,7 +14,7 @@ function ($scope, $routeParams, $location, $filter, $rootScope, $451, User, Orde
     }
 
 	$scope.hasOrderConfig = OrderConfig.hasConfig($scope.currentOrder, $scope.user);
-	$scope.checkOutSection = $scope.hasOrderConfig ? 'order' : 'shipping';
+	$scope.checkOutSection = $scope.hasOrderConfig ? 'shipping' : 'order';
 
     function submitOrder() {
 	    $scope.displayLoadingIndicator = true;
@@ -42,6 +42,15 @@ function ($scope, $routeParams, $location, $filter, $rootScope, $451, User, Orde
 	        }
         );
     };
+    
+    angular.forEach($scope.currentOrder.OrderFields, function(field){
+        if (field.Name == 'FPHCustID')
+        {
+            field.Value = 'G0000';
+        } else if(field.Name == 'PA_Ship_Service'){
+            field.Value = 'Truck';
+        }
+    });
 
 	$scope.$watch('currentOrder.CostCenter', function() {
 		OrderConfig.address($scope.currentOrder, $scope.user);
