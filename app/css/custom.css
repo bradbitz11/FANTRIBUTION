@@ -204,7 +204,7 @@ body  {background-color: #ffffff;}
 }
 .panel-product-list ul li.gallery .product-hover > div:first-of-type {
   padding: 10px;
-  overflow-y: scroll;
+  overflow-y: auto;
   max-height: 100%;
 }
 .panel-product-list ul li.gallery:hover .product-hover {
