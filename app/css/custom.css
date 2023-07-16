@@ -6,6 +6,23 @@ body,input,textarea
 	word-wrap:break-word;hov
 }
 
+.btn-info  {background-color: #00B2A9;}
+.btn-info, .btn-info:hover  {color: #000000;}
+.btn-info  {border-color: #a39a;}
+.btn-info:hover  {background-color: #9e95;}
+.btn-success  {background-color: #6BA539;}
+.btn-success, .btn-success:hover  {color: #000000;}
+.btn-success  {border-color: #5c962a;}
+.btn-success:hover  {background-color: #579125;}
+.btn-warning  {background-color: #FF6720;}
+.btn-warning, .btn-warning:hover  {color: #000000;}
+.btn-warning  {border-color: #f05811;}
+.btn-warning:hover  {background-color: #eb530c;}
+.btn-danger  {background-color: #E4002B;}
+.btn-danger, .btn-danger:hover  {color: #FFFFFF;}
+.btn-danger  {border-color: #d5001c;}
+.btn-danger:hover  {background-color: #d00017;}
+
 .panel-category-list ul li a img {
   margin: 0 auto;
   max-height: 285px;
