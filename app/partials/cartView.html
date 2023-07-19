@@ -45,19 +45,19 @@
                                     <h3 class="text-primary">
                                         <i ng-show="!item.KitIsInvalid" class="fa fa-edit"></i>
                                         <i ng-show="item.KitIsInvalid" class="fa fa-exclamation-triangle"></i>
-                                        {{item.ProductIDText}}
+                                        {{item.Product.Name}}
                                     </h3>
                                     <p>
-                                        {{item.Product.Name}}
+                                        {{item.ProductIDText}}
                                     </p>
                                 </a>
                             </div>
                             <div class="col-md-6" ng-if="currentOrder.Status == 'AwaitingApproval' && !isEditforApproval">
                                 <h3 class="text-primary">
-                                    {{item.ProductIDText}}
+                                    {{item.Product.Name}}
                                 </h3>
                                 <p>
-                                    {{item.Product.Name}}
+                                    {{item.ProductIDText}}
                                 </p>
                             </div>
                             <div class="col-md-6">
