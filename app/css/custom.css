@@ -200,6 +200,9 @@ body  {background-color: #ffffff;}
 		opacity: 1;
 	}
 }
+
+.panel-category-list ul li .well {min-height:600px;}
+
 .panel-product-list ul li.gallery .product-hover {
   z-index: 3;
   opacity: 0;
