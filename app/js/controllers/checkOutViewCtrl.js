@@ -14,7 +14,7 @@ function ($scope, $routeParams, $location, $filter, $rootScope, $451, User, Orde
     }
 
 	$scope.hasOrderConfig = OrderConfig.hasConfig($scope.currentOrder, $scope.user);
-	$scope.checkOutSection = $scope.hasOrderConfig ? 'shipping' : 'order';
+	$scope.checkOutSection = $scope.hasOrderConfig ? 'order' : 'shipping';
 
     function submitOrder() {
 	    $scope.displayLoadingIndicator = true;
